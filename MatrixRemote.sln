@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrixRemote_RemoteAPI", "MatrixRemote_RemoteAPI\MatrixRemote_RemoteAPI.csproj", "{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {75A6F25A-2AD4-470B-99FF-9317CD2E8360}
+	EndGlobalSection
+EndGlobal

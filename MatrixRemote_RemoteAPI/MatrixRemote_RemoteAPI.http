@@ -1,0 +1,6 @@
+@MatrixRemote_RemoteAPI_HostAddress = http://localhost:5110
+
+GET {{MatrixRemote_RemoteAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
