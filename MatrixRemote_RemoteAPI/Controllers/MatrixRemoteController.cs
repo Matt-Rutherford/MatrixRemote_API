@@ -1,6 +1,8 @@
 ﻿using MatrixRemote_RemoteAPI.Data;
+using MatrixRemote_RemoteAPI.Logging;
 using MatrixRemote_RemoteAPI.Models;
 using MatrixRemote_RemoteAPI.Models.Dto;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MatrixRemote_RemoteAPI.Controllers
@@ -9,9 +11,17 @@ namespace MatrixRemote_RemoteAPI.Controllers
     [ApiController]
     public class RemoteAPIController : ControllerBase
     {
+        private readonly ILogging _logger;
+        public RemoteAPIController(ILogging logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<MessageDTO>> GetMessages()
         {
+            _logger.Log("Getting all messages", "");
             return Ok(RemoteStore.remoteList);
         }
 
@@ -22,8 +32,10 @@ namespace MatrixRemote_RemoteAPI.Controllers
         //[ProducesResponseType(200, Type = typeof(RemoteDTO)] // Alternate to above
         public ActionResult<MessageDTO> GetMessage(int id)
         {
+
             if (id == 0)
             {
+                _logger.Log("Get Message Error With Id" + id, "error");
                 return BadRequest();
             }
             var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
@@ -60,13 +72,13 @@ namespace MatrixRemote_RemoteAPI.Controllers
             return CreatedAtRoute("GetMessage", new { id = messageDTO.Id }, messageDTO);
         }
 
+        [HttpDelete("{id:int}", Name = "DeleteMessage")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{id:int}", Name = "DeleteMessage")]
         public IActionResult DeleteMessage(int id)
         {
-            if(id == 0)
+            if (id == 0)
             {
                 return BadRequest();
             }
@@ -75,16 +87,15 @@ namespace MatrixRemote_RemoteAPI.Controllers
             {
                 return NotFound();
             }
-            RemoteStore.remoteList.Remove(message); 
+            RemoteStore.remoteList.Remove(message);
             return NoContent();
         }
+        [HttpPut("{id:int}", Name = "UpdateMessage")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPut("{id:int}", Name = "UpdateMessage")]
-        public IActionResult UpdateMessage(int id, [FromBody]MessageDTO messageDTO) 
+        public IActionResult UpdateMessage(int id, [FromBody] MessageDTO messageDTO)
         {
-            if(messageDTO == null || id != messageDTO.Id)
+            if (messageDTO == null || id != messageDTO.Id)
             {
                 return BadRequest();
             }
@@ -92,6 +103,27 @@ namespace MatrixRemote_RemoteAPI.Controllers
             message.Name = messageDTO.Name;
             return NoContent();
         }
+        [HttpPatch("{id:int}", Name = "UpdatePartialMessage")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdatePartialMessage(int id, JsonPatchDocument<MessageDTO> patchDTO)
+        {
+            if (patchDTO == null || id == 0)
+            {
+                return BadRequest();
+            }
+            var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
+            if (message == null)
+            {
+                return BadRequest();
+            }
+            patchDTO.ApplyTo(message, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return NoContent();
+        }
     }
-    
+
 }
