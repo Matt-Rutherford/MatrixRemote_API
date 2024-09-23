@@ -22,7 +22,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
 
 
         [HttpGet]
-        [Produces("application/json")] // Explicitly produce JSON
+        //[Produces("application/json")] // Explicitly produce JSON
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<MessageDTO>> GetMessages()
         {
