@@ -53,7 +53,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<MessageDTO> CreateMessage([FromBody] MessageDTO messageDTO)
         {
-            if (RemoteStore.remoteList.FirstOrDefault(u => u.Name.ToLower() == messageDTO.Name.ToLower()) != null)
+            if (RemoteStore.remoteList.FirstOrDefault(u => u.Message.ToLower() == messageDTO.Message.ToLower()) != null)
             {
                 ModelState.AddModelError("ExistingMessageError", "Message already Exists!");
                 return BadRequest(ModelState);
@@ -100,7 +100,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
                 return BadRequest();
             }
             var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
-            message.Name = messageDTO.Name;
+            message.Message = messageDTO.Message;
             return NoContent();
         }
         [HttpPatch("{id:int}", Name = "UpdatePartialMessage")]

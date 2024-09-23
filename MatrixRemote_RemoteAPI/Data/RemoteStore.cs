@@ -6,8 +6,8 @@ namespace MatrixRemote_RemoteAPI.Data
     {
         public static List<MessageDTO> remoteList = new List<MessageDTO>
         {
-            new MessageDTO { Id = 1, Name = "Hello"},
-            new MessageDTO { Id = 2, Name = "Goodbye"}
+            new MessageDTO { Id = 1, Message = "Hello", Font = "font"},
+            new MessageDTO { Id = 2, Message = "Goodbye", Font = "font"}
         };
     }
 }

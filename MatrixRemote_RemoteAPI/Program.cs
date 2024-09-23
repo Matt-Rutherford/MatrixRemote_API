@@ -1,4 +1,6 @@
+using MatrixRemote_RemoteAPI.Data;
 using MatrixRemote_RemoteAPI.Logging;
+using Microsoft.EntityFrameworkCore;
 using Serilog; //maybe take out? whether or not to use serilog
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 //    .WriteTo.File("log/remoteLogs.txt", rollingInterval: RollingInterval.Year).CreateLogger();
 
 //builder.Host.UseSerilog();
+
+builder.Services.AddDbContext<AppDbContext>(option =>
+{
+    option.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase"));
+});
 
 builder.Services.AddControllers(option =>
 {
