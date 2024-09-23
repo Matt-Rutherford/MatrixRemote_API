@@ -27,6 +27,9 @@
             }
         }
 
-
+        public void LogInformation(string message, int count)
+        {
+            Console.WriteLine(count);
+        }
     }
 }

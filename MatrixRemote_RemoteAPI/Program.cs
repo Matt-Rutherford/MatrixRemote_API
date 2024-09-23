@@ -1,6 +1,7 @@
 using MatrixRemote_RemoteAPI.Data;
 using MatrixRemote_RemoteAPI.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog; //maybe take out? whether or not to use serilog
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 //builder.Host.UseSerilog();
 
+
+
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
     option.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase"));
@@ -20,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 builder.Services.AddControllers(option =>
 {
     option.ReturnHttpNotAcceptable = true;
+    option.RespectBrowserAcceptHeader = true; // This ensures that the server respects the Accept header
 }).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,4 +1,5 @@
-﻿using MatrixRemote_RemoteAPI.Models.Dto;
+﻿using MatrixRemote_RemoteAPI.Models;
+using MatrixRemote_RemoteAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using static System.Net.WebRequestMethods;
@@ -19,17 +20,24 @@ namespace MatrixRemote_RemoteAPI.Data
             options.UseNpgsql(_configuration.GetConnectionString("WebApiDatabase"));
         }
 
-        public DbSet<MessageDTO> MessageDTOs { get; set; }
+        public DbSet<Remote> Remotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<MessageDTO>().HasData(
-                new MessageDTO()
+            modelBuilder.Entity<Remote>().HasData(
+                new Remote()
                 {
                     Id = 1,
                     Font = "font",
                     ImageUrl = "https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
                     Message = "message from space"
+                },
+                new Remote() // New entry
+                {
+                    Id = 2, // Ensure the Id is unique
+                    Font = "anotherFont",
+                    ImageUrl = "https://images.pexels.com/photos/123456/pexels-photo-123456.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+                    Message = "another message from space"
                 });
         }
     }

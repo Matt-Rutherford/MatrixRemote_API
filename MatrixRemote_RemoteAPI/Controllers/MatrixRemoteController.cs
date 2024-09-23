@@ -12,17 +12,35 @@ namespace MatrixRemote_RemoteAPI.Controllers
     public class RemoteAPIController : ControllerBase
     {
         private readonly ILogging _logger;
-        public RemoteAPIController(ILogging logger)
+        private readonly AppDbContext _db;
+
+        public RemoteAPIController(AppDbContext db, ILogging logger)
         {
+            _db = db;
             _logger = logger;
         }
 
+
         [HttpGet]
+        [Produces("application/json")] // Explicitly produce JSON
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<MessageDTO>> GetMessages()
         {
             _logger.Log("Getting all messages", "");
-            return Ok(RemoteStore.remoteList);
+            var messages = _db.Remotes
+                      .Select(remote => new MessageDTO
+                      {
+                          Id = remote.Id,
+                          Message = remote.Message,
+                          Font = remote.Font,
+                          ImageUrl = remote.ImageUrl
+                          // Add other properties if needed
+                      })
+                      .ToList();
+
+            // Log the retrieved messages count (or details if necessary)
+            _logger.LogInformation("Retrieved {Count} messages", messages.Count);
+            return Ok(messages); //Retrieves all the villas, include .ToList() to convert to list? 
         }
 
         [HttpGet("{id:int}", Name = "GetMessage")]
@@ -38,7 +56,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
                 _logger.Log("Get Message Error With Id" + id, "error");
                 return BadRequest();
             }
-            var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
+            var message = _db.Remotes.FirstOrDefault(u => u.Id == id);
             if (message == null)
             {
                 return NotFound();
@@ -53,7 +71,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<MessageDTO> CreateMessage([FromBody] MessageDTO messageDTO)
         {
-            if (RemoteStore.remoteList.FirstOrDefault(u => u.Message.ToLower() == messageDTO.Message.ToLower()) != null)
+            if (_db.Remotes.FirstOrDefault(u => u.Message.ToLower() == messageDTO.Message.ToLower()) != null)
             {
                 ModelState.AddModelError("ExistingMessageError", "Message already Exists!");
                 return BadRequest(ModelState);
@@ -66,8 +84,18 @@ namespace MatrixRemote_RemoteAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            messageDTO.Id = RemoteStore.remoteList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
-            RemoteStore.remoteList.Add(messageDTO);
+
+            Remote model = new()
+            {
+                Id = messageDTO.Id,
+                Font = messageDTO.Font,
+                ImageUrl = messageDTO.ImageUrl,
+                Message = messageDTO.Message
+            };
+
+            _db.Remotes.Add(model);
+            _db.SaveChanges();
+
 
             return CreatedAtRoute("GetMessage", new { id = messageDTO.Id }, messageDTO);
         }
@@ -82,12 +110,13 @@ namespace MatrixRemote_RemoteAPI.Controllers
             {
                 return BadRequest();
             }
-            var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
+            var message = _db.Remotes.FirstOrDefault(u => u.Id == id);
             if (message == null)
             {
                 return NotFound();
             }
-            RemoteStore.remoteList.Remove(message);
+            _db.Remotes.Remove(message);
+            _db.SaveChanges();
             return NoContent();
         }
         [HttpPut("{id:int}", Name = "UpdateMessage")]
@@ -99,8 +128,15 @@ namespace MatrixRemote_RemoteAPI.Controllers
             {
                 return BadRequest();
             }
-            var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
-            message.Message = messageDTO.Message;
+            Remote model = new()
+            {
+                Id = messageDTO.Id,
+                Font = messageDTO.Font,
+                ImageUrl = messageDTO.ImageUrl,
+                Message = messageDTO.Message
+            };
+            _db.Remotes.Update(model);
+            _db.SaveChanges();
             return NoContent();
         }
         [HttpPatch("{id:int}", Name = "UpdatePartialMessage")]
@@ -112,12 +148,32 @@ namespace MatrixRemote_RemoteAPI.Controllers
             {
                 return BadRequest();
             }
-            var message = RemoteStore.remoteList.FirstOrDefault(u => u.Id == id);
+            var message = _db.Remotes.FirstOrDefault(u => u.Id == id);
+
+            MessageDTO messageDTO = new()
+            {
+                Id = message.Id,
+                Font = message.Font,
+                ImageUrl = message.ImageUrl,
+                Message = message.Message
+            };
+
             if (message == null)
             {
                 return BadRequest();
             }
-            patchDTO.ApplyTo(message, ModelState);
+
+            patchDTO.ApplyTo(messageDTO, ModelState);
+
+            Remote model = new()
+            {
+                Id = messageDTO.Id,
+                Font = messageDTO.Font,
+                ImageUrl = messageDTO.ImageUrl,
+                Message = messageDTO.Message
+            };
+
+            _db.Remotes.Update(model);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

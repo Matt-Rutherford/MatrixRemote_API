@@ -14,5 +14,11 @@
             }
         }
 
+        public void LogInformation(string message, int count)
+        {
+            
+            Console.WriteLine(message, count);
+           
+        }
     }
 }
