@@ -4,6 +4,7 @@ using MatrixRemote_RemoteAPI.Models;
 using MatrixRemote_RemoteAPI.Models.Dto;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MatrixRemote_RemoteAPI.Controllers
 {
@@ -148,7 +149,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
             {
                 return BadRequest();
             }
-            var message = _db.Remotes.FirstOrDefault(u => u.Id == id);
+            var message = _db.Remotes.AsNoTracking().FirstOrDefault(u => u.Id == id);
 
             MessageDTO messageDTO = new()
             {
