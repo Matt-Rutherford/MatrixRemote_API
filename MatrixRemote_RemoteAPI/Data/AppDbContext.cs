@@ -1,5 +1,7 @@
 ﻿using MatrixRemote_RemoteAPI.Models;
 using MatrixRemote_RemoteAPI.Models.Dto;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using static System.Net.WebRequestMethods;
@@ -7,23 +9,20 @@ using static System.Net.WebRequestMethods;
 
 namespace MatrixRemote_RemoteAPI.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<IdentityUser> //come back to this
     {
-        protected readonly IConfiguration _configuration;
-        public AppDbContext(IConfiguration configuration)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) //Include this??
         {
-            _configuration = configuration;
+            
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseNpgsql(_configuration.GetConnectionString("WebApiDatabase"));
-        }
 
         public DbSet<Remote> Remotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            seedRoles(modelBuilder);
             modelBuilder.Entity<Remote>().HasData(
                 new Remote()
                 {
@@ -39,6 +38,14 @@ namespace MatrixRemote_RemoteAPI.Data
                     ImageUrl = "https://images.pexels.com/photos/123456/pexels-photo-123456.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
                     Message = "another message from space"
                 });
+        }
+        private static void seedRoles(ModelBuilder builder)
+        {
+            builder.Entity<IdentityRole>().HasData
+                (
+                new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
+                new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "User" }
+                );
         }
     }
 }

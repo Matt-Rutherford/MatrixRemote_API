@@ -16,4 +16,5 @@ namespace MatrixRemote_RemoteAPI.Models
 
         public DateTime UpdatedDate { get; set; }
     }
+
 }

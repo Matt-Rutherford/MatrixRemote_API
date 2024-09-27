@@ -1,5 +1,7 @@
 using MatrixRemote_RemoteAPI.Data;
 using MatrixRemote_RemoteAPI.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -13,11 +15,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 //builder.Host.UseSerilog();
 
-builder.Services.AddDbContext<AppDbContext>(option =>
+
+// For db
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase")));
+
+// For identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+// Add Auth
+builder.Services.AddAuthentication(options =>
 {
-    option.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase"));
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 });
 
+// Controllers
 builder.Services.AddControllers(option =>
 {
     option.ReturnHttpNotAcceptable = false; // Ensures that unacceptable formats are rejected, ie only accepts JSON rn
