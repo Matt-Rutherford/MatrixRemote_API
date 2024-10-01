@@ -25,7 +25,6 @@ namespace MatrixRemote_RemoteAPI.Controllers
         {
             //Check if user exists
             var userExist = await _userManager.FindByEmailAsync(registerUser.Email);
-
             if (userExist != null)
             {
                 return StatusCode(StatusCodes.Status403Forbidden,
