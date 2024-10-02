@@ -43,8 +43,8 @@ namespace MatrixRemote_RemoteAPI.Data
         {
             builder.Entity<IdentityRole>().HasData
                 (
-                new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
-                new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "User" }
+                new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "ADMIN" },
+                new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "USER" }
                 );
         }
     }

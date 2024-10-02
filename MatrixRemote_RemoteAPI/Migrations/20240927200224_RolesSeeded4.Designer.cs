@@ -3,6 +3,7 @@ using System;
 using MatrixRemote_RemoteAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MatrixRemote_RemoteAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240927200224_RolesSeeded4")]
+    partial class RolesSeeded4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,14 +104,14 @@ namespace MatrixRemote_RemoteAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "cd53d24d-3e94-4823-a7e8-944bef0f50f2",
+                            Id = "34f98dbf-069b-4590-9164-675170b8247f",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "ea068fd4-1ae4-4cbb-ad1a-4bd2702ff677",
+                            Id = "4d48f062-2c13-48cd-aa98-46ce8452d920",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "USER"

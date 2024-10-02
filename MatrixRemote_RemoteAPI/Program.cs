@@ -2,9 +2,12 @@ using MatrixRemote_RemoteAPI.Data;
 using MatrixRemote_RemoteAPI.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
+using User.Management.Service.Models;
+using User.Management.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,14 +19,22 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Host.UseSerilog();
 
 
-// For db
+// For db, entity framework core!
+var configuration = builder.Configuration;
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase")));
 
 // For identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => 
+    { 
+    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider; 
+    })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+//Add config for req email
+builder.Services.Configure<IdentityOptions>(
+    options => options.SignIn.RequireConfirmedEmail = true);
 
 // Add Auth
 builder.Services.AddAuthentication(options =>
@@ -32,6 +43,14 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 });
+
+// Add email configs
+//var emailConfig = configuration
+//    .GetSection("EmailConfiguration")
+//    .Get<EmailConfiguration>();
+
+builder.Services.Configure<EmailConfiguration>(configuration.GetSection("EmailConfiguration"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Controllers
 builder.Services.AddControllers(option =>

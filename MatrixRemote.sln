@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrixRemote_RemoteAPI", "MatrixRemote_RemoteAPI\MatrixRemote_RemoteAPI.csproj", "{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MatrixRemote_RemoteAPI", "MatrixRemote_RemoteAPI\MatrixRemote_RemoteAPI.csproj", "{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Management.Service", "User.Management.Services\User.Management.Service.csproj", "{9DF31CB4-065C-4209-9ADF-17553874D157}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEA04F6B-41E5-4B85-80D0-4D4AE5A43502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DF31CB4-065C-4209-9ADF-17553874D157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DF31CB4-065C-4209-9ADF-17553874D157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DF31CB4-065C-4209-9ADF-17553874D157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DF31CB4-065C-4209-9ADF-17553874D157}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
