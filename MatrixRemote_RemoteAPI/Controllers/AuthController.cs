@@ -1,8 +1,14 @@
 ﻿using MatrixRemote_RemoteAPI.Logging;
 using MatrixRemote_RemoteAPI.Models;
+using MatrixRemote_RemoteAPI.Models.Auth.Login;
 using MatrixRemote_RemoteAPI.Models.Auth.SignUp;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Web;
 using User.Management.Service.Models;
 using User.Management.Service.Services;
@@ -19,14 +25,13 @@ namespace MatrixRemote_RemoteAPI.Controllers
         private readonly IEmailService _emailService;
         //private readonly ILogger _logger;
         public AuthController(UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager, IEmailService emailService)
+            RoleManager<IdentityRole> roleManager, IEmailService emailService, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            //_configuration = configuration; //don't need? 
             _emailService = emailService;
-            //_logger = logger;
-
+            _configuration = configuration;
+            //_logger = logger
         }
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterUser registerUser, string role)
@@ -114,10 +119,63 @@ namespace MatrixRemote_RemoteAPI.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError,
                     new Response { Status = "Error", Message = "This user does not exist." });
         }
-    }
-}
+        [HttpPost]
+        [Route("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
+        {
+            //check user
+            var user = await _userManager.FindByNameAsync(loginModel.Username);
 
-/*
- * Generated Token: CfDJ8HaJhyfXvvBCtakOY/OTTzCXkX057VM5ruwKMYDrKOc44opuPMJvfFhT2GL6v/fVUN4NO7Sc+iGCbUMAB5Bap5/7SVmQHItwpRRCC3f7C35VtOvy3BwV4p5hWPBBduWf8hWlBH1kthZnSxlIVKiTeZ4KdmOb5EH1PwyAuxN/s9WwZOjFxnLFyNvQtu46ncKJnEuIEXKcNwGxpchLSK55zxvP0q3QKWKymDlELJwlavCh1lEu9km4vuXVou8g9cSf5A==
-Received Token: CfDJ8HaJhyfXvvBCtakOY%2fOTTzCXkX057VM5ruwKMYDrKOc44opuPMJvfFhT2GL6v%2ffVUN4NO7Sc%2biGCbUMAB5Bap5%2f7SVmQHItwpRRCC3f7C35VtOvy3BwV4p5hWPBBduWf8hWlBH1kthZnSxlIVKiTeZ4KdmOb5EH1PwyAuxN%2fs9WwZOjFxnLFyNvQtu46ncKJnEuIEXKcNwGxpchLSK55zxvP0q3QKWKymDlELJwlavCh1lEu9km4vuXVou8g9cSf5A%3d%3d
- * */
+            //check password
+            if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
+            {
+
+                //create claimlist
+                var authClaims = new List<Claim> {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                //add roles to the claimlist
+                var userRoles = await _userManager.GetRolesAsync(user);
+                foreach (var role in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                //generate token with the claims
+                var jwtToken = GetToken(authClaims);
+
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                    expiration = jwtToken.ValidTo
+                }
+                );
+
+            }
+            return Unauthorized();
+            
+            //return token
+
+        }
+
+        private JwtSecurityToken GetToken(List<Claim> authClaims)
+        {
+
+            var secret = _configuration["JWT:Secret"];
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddDays(7),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
+
+            return token;
+        }
+    }
+
+    
+}
