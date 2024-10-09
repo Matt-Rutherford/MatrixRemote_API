@@ -2,23 +2,31 @@
 using MatrixRemote_RemoteAPI.Logging;
 using MatrixRemote_RemoteAPI.Models;
 using MatrixRemote_RemoteAPI.Models.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using Microsoft.Extensions.Hosting;  // Needed for checking if in dev/prod
+using System.Drawing;
 
+// These controllers are for display messages on API. #TODO move MessageDTO functions? 
 namespace MatrixRemote_RemoteAPI.Controllers
 {
+    [Authorize]
     [Route("api/RemoteAPI")]
     [ApiController]
     public class RemoteAPIController : ControllerBase
     {
         private readonly ILogging _logger;
         private readonly AppDbContext _db;
+        private readonly IHostEnvironment _env; 
 
-        public RemoteAPIController(AppDbContext db, ILogging logger)
+        public RemoteAPIController(AppDbContext db, ILogging logger, IHostEnvironment env)
         {
             _db = db;
             _logger = logger;
+            _env = env;
         }
 
 
@@ -181,6 +189,60 @@ namespace MatrixRemote_RemoteAPI.Controllers
             }
             return NoContent();
         }
+
+        //method for testing display message. I don't like the logic for checking if env is in prod or dev #TODO refactor? 
+        [HttpPost("DisplayMessage")]
+        public IActionResult DisplayMessage([FromBody] MessageInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Message) || input.Color == null)
+            {
+                return BadRequest("Message and Color are required.");
+            }
+            
+            try
+            {
+                if (_env.IsProduction())
+                {
+                    // Construct the Linux command using the input
+                    string command = $"sudo ./rpi-rgb-led-matrix/utils/text-scroller -f ./rpi-rgb-led-matrix/fonts/9x18.bdf -C{input.Color.R},{input.Color.G},{input.Color.B} --\r\nled-cols=64 --led-rows=64 \"{input.Message}\"";
+                    //string command = $"/path/to/matrix/display -m \"{input.Message}\" -c \"{input.Color}\"";
+
+                    // run the command on the Pi
+                    ProcessStartInfo processInfo = new ProcessStartInfo
+                    {
+                        FileName = "/bin/bash", // Assuming you're running bash shell commands
+                        Arguments = $"-c \"{command}\"",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    using (Process process = Process.Start(processInfo))
+                    {
+                        process.WaitForExit();
+
+                        if (process.ExitCode == 0)
+                        {
+                            return Ok("Message displayed successfully.");
+                        }
+                        else
+                        {
+                            string error = process.StandardError.ReadToEnd();
+                            return StatusCode(500, $"Error: {error}");
+                        }
+                    }
+                } else {
+                    return Ok("[Development] Would have displayed message: {input.Message} in R = {input.Color.R}, G = {input.Color.G}, B = {input.Color.B}");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Exception occurred: {ex.Message}");
+            }
+        }
+
     }
 
 }
