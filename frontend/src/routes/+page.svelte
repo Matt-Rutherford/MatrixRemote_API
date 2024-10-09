@@ -3,23 +3,34 @@
 	let message = '';
 	let color = '#ffffff'; // Default color: white
 
-	// Function to handle message sending
+    // @ts-ignore
+	function hexToRgb(hex) {
+		hex = hex.replace(/^#/, '');
+		let bigint = parseInt(hex, 16);
+		let r = (bigint >> 16) & 255;
+		let g = (bigint >> 8) & 255;
+		let b = bigint & 255;
+		return { r, g, b };
+	}
+
+	// Testing sending message to pi
 	async function sendMessage() {
 		if (!message) {
 			alert('Message cannot be empty!');
 			return;
 		}
-
+        // Hex to rgb
+        const rgbColor = hexToRgb(color);
 		try {
 			// Send message and color to backend API
-			const response = await fetch('http://localhost:7000/api/DisplayMessage', {
+			const response = await fetch('https://localhost:7033/api/RemoteAPI/DisplayMessage', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
 					message: message,
-					color: color
+					color: rgbColor
 				})
 			});
 

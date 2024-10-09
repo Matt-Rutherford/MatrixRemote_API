@@ -13,7 +13,7 @@ using System.Drawing;
 // These controllers are for display messages on API. #TODO move MessageDTO functions? 
 namespace MatrixRemote_RemoteAPI.Controllers
 {
-    [Authorize]
+    [Authorize] // To make 
     [Route("api/RemoteAPI")]
     [ApiController]
     public class RemoteAPIController : ControllerBase
@@ -191,6 +191,7 @@ namespace MatrixRemote_RemoteAPI.Controllers
         }
 
         //method for testing display message. I don't like the logic for checking if env is in prod or dev #TODO refactor? 
+        [AllowAnonymous] //TODO REMOVE
         [HttpPost("DisplayMessage")]
         public IActionResult DisplayMessage([FromBody] MessageInput input)
         {
