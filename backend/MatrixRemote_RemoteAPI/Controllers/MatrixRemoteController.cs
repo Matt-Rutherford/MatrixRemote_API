@@ -205,18 +205,18 @@ namespace MatrixRemote_RemoteAPI.Controllers
                 if (_env.IsProduction())
                 {
                     // Construct the Linux command using the input
-                    string command = $"sudo ./rpi-rgb-led-matrix/utils/text-scroller -f ./rpi-rgb-led-matrix/fonts/9x18.bdf -C{input.Color.R},{input.Color.G},{input.Color.B} --\r\nled-cols=64 --led-rows=64 \"{input.Message}\"";
-                    //string command = $"/path/to/matrix/display -m \"{input.Message}\" -c \"{input.Color}\"";
-
+                    //string command = $"-f ./rpi-rgb-led-matrix/fonts/9x18.bdf -C{input.Color.R},{input.Color.G},{input.Color.B} --\r\nled-cols=64 --led-rows=64 \"{input.Message}\"";
+                    string command = $"./text-scroller -f ../fonts/9x18.bdf -C{input.Color.R},{input.Color.G},{input.Color.B} --led-cols=64 --led-rows=64 \"{input.Message}\"";
                     // run the command on the Pi
                     ProcessStartInfo processInfo = new ProcessStartInfo
                     {
-                        FileName = "/bin/bash", // Assuming you're running bash shell commands
-                        Arguments = $"-c \"{command}\"",
+                        FileName = "/usr/bin/sudo",
+                        Arguments = command,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
+                        WorkingDirectory = "/home/matt/rpi-rgb-led-matrix/utils"
                     };
 
                     using (Process process = Process.Start(processInfo))

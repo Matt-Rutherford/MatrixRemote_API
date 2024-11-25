@@ -13,13 +13,13 @@ namespace User.Management.Service.Services
         {
             _emailConfig = emailConfig.Value; // Use .Value to access the config values
         }
-        public void SendEmail(Message message)
+        public void SendEmail(EmailMessage message)
         {
             var emailMessage = CreateEmailMessage(message);
             Send(emailMessage);
         }
 
-        private MimeMessage CreateEmailMessage(Message message)
+        private MimeMessage CreateEmailMessage(EmailMessage message)
         {
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("email", _emailConfig.From));

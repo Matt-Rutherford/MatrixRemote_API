@@ -75,12 +75,11 @@ namespace MatrixRemote_RemoteAPI.Controllers
                     }
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    Console.WriteLine($"Generated Token: {token}"); //TODO REMOVE
 
                     var confirmationLink = Url.Action(nameof(ConfirmEmail), "Auth", new { token = HttpUtility.UrlEncode(token), email = user.Email }, Request.Scheme);
                     //var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { token, email = user.Email }, Request.Scheme);
 
-                    var message = new Message(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
+                    var message = new EmailMessage(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
                     _emailService.SendEmail(message);
 
                     return Ok(new Response { Status = "Success", Message = $"User created and mail sent to {user.Email} successfully." });

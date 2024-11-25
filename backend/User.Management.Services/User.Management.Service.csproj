@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <None Include="Models\EmailConfiguration.cs" />
-    <None Include="Models\Message.cs" />
+    <None Include="Models\EmailMessage.cs" />
   </ItemGroup>
 
   <ItemGroup>
