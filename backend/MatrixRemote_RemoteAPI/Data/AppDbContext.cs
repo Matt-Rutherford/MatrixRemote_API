@@ -7,45 +7,82 @@ using Microsoft.Extensions.Configuration;
 using static System.Net.WebRequestMethods;
 
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using MatrixRemote_RemoteAPI.Models;
+using static MatrixRemote_RemoteAPI.Models.MatrixEvent;
+
 namespace MatrixRemote_RemoteAPI.Data
 {
-    public class AppDbContext : IdentityDbContext<IdentityUser> //come back to this
+    public class AppDbContext : IdentityDbContext<IdentityUser>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) //Include this??
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            
         }
 
-
-        public DbSet<Remote> Remotes { get; set; }
+        // DbSet for MatrixEvent
+        public DbSet<MatrixEvent> Events { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            seedRoles(modelBuilder);
-            modelBuilder.Entity<Remote>().HasData(
-                new Remote()
+
+            // Seed roles for Identity
+            SeedRoles(modelBuilder);
+
+            // Configure MatrixEvent entity
+            modelBuilder.Entity<MatrixEvent>(entity =>
+            {
+                // Set up a primary key and additional constraints
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.Timestamp).IsRequired();
+                entity.Property(e => e.Type).HasConversion<string>(); // Store EventType as a string
+                entity.OwnsOne(e => e.Location); // If GeoLocation is a complex type
+                entity.OwnsOne(e => e.Color);    // If RgbColor is a complex type
+            });
+
+            // Seed data for MatrixEvent
+            modelBuilder.Entity<MatrixEvent>().HasData(
+                new MatrixEvent
                 {
-                    Id = 1,
-                    Font = "font",
-                    ImageUrl = "https://images.pexels.com/photos/998641/pexels-photo-998641.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-                    Message = "message from space"
+                    Id = Guid.NewGuid(),
+                    Content = "Hello from Earth!",
+                    Timestamp = DateTime.UtcNow,
+                    Type = EventType.Text,
+                    Location = new GeoLocation { Latitude = 37.7749, Longitude = -122.4194 },
+                    Color = new RgbColor { R = 255, G = 0, B = 0 }
                 },
-                new Remote() // New entry
+                new MatrixEvent
                 {
-                    Id = 2, // Ensure the Id is unique
-                    Font = "anotherFont",
-                    ImageUrl = "https://images.pexels.com/photos/123456/pexels-photo-123456.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-                    Message = "another message from space"
-                });
+                    Id = Guid.NewGuid(),
+                    Content = "Image from the stars",
+                    Timestamp = DateTime.UtcNow,
+                    Type = EventType.Image,
+                    Location = new GeoLocation { Latitude = 40.7128, Longitude = -74.0060 },
+                    Color = null // No color for images
+                }
+            );
         }
-        private static void seedRoles(ModelBuilder builder)
+
+        private static void SeedRoles(ModelBuilder builder)
         {
-            builder.Entity<IdentityRole>().HasData
-                (
-                new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "ADMIN" },
-                new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "USER" }
-                );
+            builder.Entity<IdentityRole>().HasData(
+                new IdentityRole
+                {
+                    Name = "Admin",
+                    ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    NormalizedName = "ADMIN"
+                },
+                new IdentityRole
+                {
+                    Name = "User",
+                    ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    NormalizedName = "USER"
+                }
+            );
         }
     }
 }
+
