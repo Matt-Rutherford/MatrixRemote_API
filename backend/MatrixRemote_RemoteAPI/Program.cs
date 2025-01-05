@@ -130,7 +130,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     {
         // Path for Windows environment
-        serverOptions.ListenAnyIP(7033, listenOptions =>
+        serverOptions.ListenAnyIP(7032, listenOptions =>
         {
             listenOptions.UseHttps(@"C:\Users\Matt\Downloads\certificate.pfx", "WesleyStone");
         });
