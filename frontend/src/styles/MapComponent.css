@@ -1,0 +1,20 @@
+/* Ensure the map container fills the space and prevents fractures */
+.map-container {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden; /* Prevent map tiles from spilling out */
+    border-radius: 8px; /* Optional: Add rounded corners */
+}
+
+/* Ensure Leaflet tiles are displayed correctly */
+.leaflet-container {
+    height: 100%;
+    width: 100%;
+    background: #eaeaea; /* Optional: Background color before tiles load */
+}
+
+    /* Prevent the map from covering other elements */
+    .leaflet-container * {
+        pointer-events: auto; /* Ensure other elements retain functionality */
+    }
